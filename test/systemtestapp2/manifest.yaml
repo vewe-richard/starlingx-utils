@@ -1,0 +1,34 @@
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: test-rabbitmq2
+data:
+  chart_name: rbd-provisioners2
+  release: rbd-provisionerx2
+  namespace: kube-systemm2
+  source:
+    type: tar
+    location: http://172.17.0.1:8080/helm_charts/stx-platform/rbd-provisioner-0.1.1.2.tgz
+    subpath: rbd-provisionerd2
+    reference: master
+  dependencies: []
+---
+schema: armada/ChartGroup/v1
+metadata:
+  schema: metadata/Document/v1
+  name: systemtestapp2-charts
+data:
+  description: systemtestapp2 Charts
+  sequenced: true
+  chart_group:
+  - test-rabbitmq2
+---
+schema: armada/Manifest/v1
+metadata:
+  schema: metadata/Document/v1
+  name: systemtestapp2-manifest
+data:
+  release_prefix: stx
+  chart_groups:
+  - systemtestapp2-charts
