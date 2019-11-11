@@ -4,6 +4,7 @@ import getopt
 
 from actions.baseaction import BaseAction
 from actions.packingsysapp import PackingSysApp
+from actions.uploadingsysapp import UploadingSysApp
 
 class HelpAction(BaseAction):
     def cmd(self):
@@ -44,7 +45,7 @@ class StarlingX:
     def __init__(self):
         ########################################### add new actions here ########################################################
         self._version = "StarlingX utils 0.1"
-        self._actions = [PackingSysApp, HelpAction]
+        self._actions = [PackingSysApp, UploadingSysApp, HelpAction]
         self._options = ["verbose", "version"]
         pass
 

@@ -27,12 +27,16 @@ OPTIONS:
             print "Error: Missing directory"
             self.usage()
             return
-        lines = self.genmd5(args[0])
-        self.writemd5(args[0], lines)
+
         try:
-            subprocess.call(["tar", "-C", args[0], "-cvzf", "output.tgz", "./"])
-        except:
-            pass
+            self.packing(args[0])
+        except Exception as e:
+            print e
+        
+    def packing(self, directory):
+        lines = self.genmd5(directory)
+        self.writemd5(directory, lines)
+        subprocess.call(["tar", "-C", directory, "-cvzf", "output.tgz", "./"])
         
 
     def writemd5(self, appdir, lines):
@@ -52,19 +56,15 @@ OPTIONS:
                 files.append(os.path.join(r, file))
 
         if skip == 0:
-            print "Error: can not find metadata.yaml"
-            return
+            raise Exception("Error: can not find metadata.yaml")
 
         lines = []
         for file in files:
-            try:
-                result = subprocess.check_output(["md5sum", file])
-                items = result.split()
-                if len(items) != 2:
-                    continue
-                lines.append(items[0] + "  ./" + items[1][skip:] + "\n")
-            except:
-                pass
+            result = subprocess.check_output(["md5sum", file])
+            items = result.split()
+            if len(items) != 2:
+                continue
+            lines.append(items[0] + "  ./" + items[1][skip:] + "\n")
         return lines
 
 
