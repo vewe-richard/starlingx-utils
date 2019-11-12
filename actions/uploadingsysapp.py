@@ -4,6 +4,10 @@ import time
 from baseaction import BaseAction
 from packingsysapp import PackingSysApp 
 
+class ApplicationNotExist(RuntimeError):
+    def __init__(self, arg):
+        self.arg = arg
+
 class UploadingSysApp(BaseAction):
     def cmd(self):
         return "uploadingsysapp"
@@ -30,19 +34,57 @@ OPTIONS:
             self.usage()
             return
         directory = args[0]
-#        self.uploading(directory)
-        self.test(directory)
+        self.uploading(directory)
+#        self.test(directory)
 
     def test(self, directory):
         app_name = self.app_name(directory) 
         print app_name
+        self.remove_application(app_name)
+        self.upload_apply(app_name)
+
+    def upload_apply(self, app_name):
+        print "system applicaiton-upload output.tgz"
+        try:
+            subprocess.check_output(["system", "application-upload", "output.tgz"])
+        except subprocess.CalledProcessError as grepexc:
+            raise Exception("Error: system call to application")
+        count = 0
+        while True:
+            app_status = self.app_status(app_name)
+            print "application status: ", app_status 
+            if app_status == "uploaded":
+                break
+            count += 1
+            if count > 6:
+                raise "Error: application-upload failed"
+            time.sleep(1)
+
+        try:
+            subprocess.check_output(["system", "application-apply", app_name])
+        except subprocess.CalledProcessError as grepexc:
+            raise Exception("Error: system call to application")
+        count = 0
+        while True:
+            app_status = self.app_status(app_name)
+            print "application status: ", app_status 
+            if app_status == "applied" or app_status == "apply-failed":
+                break
+            count += 1
+            if count > 6:
+                raise "Error: application-upload failed"
+            time.sleep(1)
+        
 
 
+
+    def remove_application(self, app_name):
         count = 0
         while True:
             try:
                 app_status = self.app_status(app_name)
-            except APPLICATION_NOT_EXIST:-----------------------------
+            except ApplicationNotExist as e:
+                print "remove application done"
                 break
 
             print "application status: app_status"
@@ -60,10 +102,12 @@ OPTIONS:
                     subprocess.check_output(["system", "application-delete", app_name])
                 except subprocess.CalledProcessError as grepexc:
                     raise Exception("Error: system call to application")
+            elif app_status == "remove-failed":
+                raise "Error: system application status remove-failed, outof handle"
             else:
                 print "Unprocessed status: ", app_status
             count += 1
-            if count > 3:
+            if count > 6:
                 raise "Error: preprocess application status failed"
             time.sleep(1)
                 
@@ -78,7 +122,7 @@ OPTIONS:
                 if items[1].strip() == "status":
                     return items[2].strip()
         except subprocess.CalledProcessError as grepexc:
-            raise Exception("Error: system call to application")
+            raise ApplicationNotExist("Error: system call to application")
 
         raise Exception("Error: can not find application status")
 
@@ -110,7 +154,10 @@ OPTIONS:
 
         # system upload
         # system applying
+        self.remove_application(app_name)
+        self.upload_apply(app_name)
         # system application status
+        subprocess.call(["system", "application-show", app_name])
         # system log if error
         # 
 

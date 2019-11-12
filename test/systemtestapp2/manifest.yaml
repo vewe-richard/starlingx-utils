@@ -5,12 +5,12 @@ metadata:
   name: test-rabbitmq2
 data:
   chart_name: rbd-provisioners2
-  release: rbd-provisionerx2
-  namespace: kube-systemm2
+  release: mychart
+  namespace: default
   source:
     type: tar
-    location: http://172.17.0.1:8080/helm_charts/stx-platform/rbd-provisioner-0.1.1.2.tgz
-    subpath: rbd-provisionerd2
+    location: http://172.17.0.1:8080/helm_charts/test/mychart-0.1.0.tgz
+    subpath: mychart
     reference: master
   dependencies: []
 ---
